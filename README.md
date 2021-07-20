@@ -1,2 +1,1 @@
-# epsa2019
- 
+Main project repository: [`briatte/epsaconf`](https://github.com/briatte/epsaconf)
