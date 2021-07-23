@@ -1,8 +1,10 @@
 
-# downloads (handled in Python) -------------------------------------------
+# downloads ---------------------------------------------------------------
 
-# run 01-download.py
-# run 02-download-authors.py
+# [NOTE] download script runs in Python
+# 01-download-pages.py
+
+source("02-check-downloads.r")
 
 # parsing -----------------------------------------------------------------
 
@@ -10,24 +12,28 @@ source("03-parse-sessions.r")
 source("04-parse-abstracts.r")
 source("05-parse-authors.r")
 
-# merge all datasets ------------------------------------------------------
+# wrangling ---------------------------------------------------------------
 
-d <- read_tsv("data/sessions.tsv", col_types = "ccccccccc") %>%
-  left_join(
-    read_tsv("data/abstracts.tsv", col_types = "ccccc"),
-    by = "abstract_id"
-  ) %>%
-  left_join(
-    read_tsv("data/authors.tsv", col_types = "ccc"),
-    by = "abstract_id"
-  )
+# reformat data into single master dataset (`program.tsv`)
+source("06-assemble-program.r")
+
+# fix multiple affiliations per author + minimal data cleaning
+source("07-fix-affiliations.r")
+
+# create unique participant ids
+source("08-create-pids.r")
+
+# conclude ----------------------------------------------------------------
+
+d <- read_tsv("data/program.tsv", col_types = "ccccccccccccc")
 
 cat(
-  "Collected",
-  n_distinct(d$session_id), "panels,",
-  n_distinct(d$abstract_id), "abstracts,",
-  # [WARNING] might contain homonyms
-  n_distinct(d$author), "authors."
+  "\n-", n_distinct(d$session_id), "panels",
+  "\n-", n_distinct(d$abstract_id), "abstracts",
+  "\n-", n_distinct(d$full_name), "participants (ids)",
+  "\n-", n_distinct(d$full_name), "participants (full names)",
+  # TODO: more data cleaning on affiliations
+  "\n-", n_distinct(d$affiliation), "affiliations\n"
 )
 
 # work-in-progress
