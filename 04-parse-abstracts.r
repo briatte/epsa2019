@@ -18,13 +18,18 @@ d <- map(f, read_html) %>%
       abstract_title = html_nodes(.x, "h1") %>%
         html_text(),
       # abstract text
-      abstract_text = html_nodes(.x, "p.calibri:nth-of-type(1)") %>%
-        html_text(),
+      abstract_text = "//*[self::p or self::div][@class='calibri']" %>%
+        html_nodes(.x, xpath = .) %>%
+        html_text() %>%
+        unique() %>%
+        str_flatten(collapse = " "),
       # abstract authors
-      abstract_authors = html_nodes(.x, xpath = "//h1/following-sibling::section") %>%
+      abstract_authors = "//h1/following-sibling::section" %>%
+        html_nodes(.x, xpath = .) %>%
         html_text(),
       # abstract presenters
-      abstract_presenters = html_nodes(.x, xpath = "//h1/following-sibling::section") %>%
+      abstract_presenters = "//h1/following-sibling::section" %>%
+        html_nodes(.x, xpath = .) %>%
         map(html_nodes, xpath = "./div/span[contains(@style, 'underline')]") %>%
         map(html_text) %>%
         map_chr(str_c, collapse = ", ")
@@ -32,6 +37,9 @@ d <- map(f, read_html) %>%
     # abstract id
     .id = "abstract_id"
   )
+
+# sanity check: all abstracts parsed
+stopifnot(!length(f[ !f %in% d$abstract_id ]))
 
 # drop unused columns
 d <- select(d, -abstract_authors) %>%
@@ -42,7 +50,7 @@ d <- select(d, -abstract_authors) %>%
   )
 
 # sanity check: no duplicates
-stopifnot(!duplicated(d))
+stopifnot(!duplicated(d$abstract_id))
 
 # sanity check: no missing abstract ids
 stopifnot(str_detect(d$abstract_id, "\\d{5,6}"))
