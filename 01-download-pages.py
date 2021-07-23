@@ -7,9 +7,12 @@
 
 
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 import os
 import re
-import time
 
 
 # ## Create download folders
@@ -42,10 +45,12 @@ download_authors = True
 
 files = [f for f in os.listdir("html/authors") if re.match(r'.*\.html', f)]
 if len(files) > 0:
-    # look at numbers in downloaded authors
+    
+    # extract numbers from downloaded authors lists filenames
     first_id = []
     last_id = []
     max_id = []
+    
     for i in files:
         n = re.findall(r'\d+', i)
         # store 'x to y out of z' values
@@ -56,7 +61,7 @@ if len(files) > 0:
     max_id = set(max_id)
     assert len(max_id) == 1, "Malformed author count."
 
-    # exit if we are already done
+    # determine whether we are already done
     if 1 in set(first_id) and max(set(last_id)) == max(max_id):
         print('All authors already downloaded.')
         download_authors = False
@@ -78,12 +83,16 @@ if download_authors:
 
         i += 1
 
-        # give it some time to load
-        time.sleep(7.5)
+        # wait for main content to finish loading
+        try:
+            WebDriverWait(driver, 7.5).until(EC.presence_of_element_located((By.TAG_NAME, 'h2')))
+        except TimeoutException:
+            print("Download of author pages failed at iteration " + str(i) +"\n")
+            raise SystemExit("Could not download all author pages")
 
         # extract results string
         r = driver.find_element_by_xpath(".//span[@class='results__count']").text
-        print(str(i).rjust(3) + "Dowloading authors " + " " + r)
+        print(str(i).rjust(3) + " Dowloaded authors " + r)
 
         # save
         f = "html/authors/authors_" + r.replace(" ", "_") + ".html"
@@ -111,17 +120,20 @@ session_urls = []
 abstract_urls = []
 
 files = [f for f in os.listdir("html/authors") if re.match(r'.*\.html', f)]
-for i in files:
-    x = driver.get("file://" + os.path.abspath("html/authors/" + i))
+print("Parsing " + str(len(files)) + " author pages...")
+
+for i in sorted(files):
+    # load
+    driver.get("file://" + os.path.abspath("html/authors/" + i))
     
     # find links to sessions
-    y = driver.find_elements_by_xpath(".//a[contains(@href, 'session')]")
-    for j in y:
+    r = driver.find_elements_by_xpath(".//a[contains(@href, 'session')]")
+    for j in r:
         session_urls.append(j.get_attribute("href"))
     
     # find links to abstracts
-    z = driver.find_elements_by_xpath(".//a[contains(@href, 'submission')]")
-    for j in z:
+    r = driver.find_elements_by_xpath(".//a[contains(@href, 'submission')]")
+    for j in r:
         abstract_urls.append(j.get_attribute("href"))
 
 
@@ -135,13 +147,23 @@ for i in files:
 session_urls = set(session_urls)
 print("Downloading " + str(len(session_urls)) + " sessions...")
 
-for i in session_urls:
+for i in sorted(session_urls):
     u = i.replace("file://", "https://app.oxfordabstracts.com")
     f = "html/sessions/session_" + re.search(r'\d{4}', i).group(0) + ".html"
     if not(os.path.exists(f)):
-        print(f)
+        
+        print("Downloading session " + u)
+        
         # load
         driver.get(u)
+        
+        # wait for main content to finish loading
+        try:
+            WebDriverWait(driver, 7.5).until(EC.presence_of_element_located((By.TAG_NAME, 'h1')))
+        except TimeoutException:
+            print("Download of session failed at URL " + u +"\n")
+            raise SystemExit("Could not download all session pages")
+
         # save
         with open(f, "w") as file:
             file.write(driver.page_source)
@@ -164,9 +186,19 @@ for i in abstract_urls:
     u = i.replace("file://", "https://app.oxfordabstracts.com")
     f = "html/abstracts/abstract_" + re.search(r'\d{5,6}', i).group(0) + ".html"
     if not(os.path.exists(f)):
-        print(f)
+        
+        print("Downloading abstract " + u)
+        
         # load
         driver.get(u)
+        
+        # wait for main content to finish loading
+        try:
+            WebDriverWait(driver, 7.5).until(EC.presence_of_element_located((By.TAG_NAME, 'h1')))
+        except TimeoutException:
+            print("Download of abstract failed at URL " + u +"\n")
+            raise SystemExit("Could not download all abstract pages")
+
         # save
         with open(f, "w") as file:
             file.write(driver.page_source)
