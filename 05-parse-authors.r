@@ -6,7 +6,7 @@ fs::dir_create("data")
 # parse authors -----------------------------------------------------------
 
 f <- fs::dir_ls("html/authors")
-cat("Parsing", length(f), "author list pages...\n")
+cat("Parsing", length(f), "author (list) pages... ")
 
 d <- map(f, read_html) %>%
   map_dfr(
@@ -71,7 +71,12 @@ stopifnot(!duplicated(d))
 # sanity check: no missing abstract ids
 stopifnot(str_detect(d$abstract_id, "\\d{5,6}"))
 
-# export
-readr::write_tsv(d, "data/authors.tsv")
+# export ------------------------------------------------------------------
+
+f <- "data/authors.tsv"
+
+readr::write_tsv(d, f)
+
+cat(nrow(d), "rows written to", f, "\n")
 
 # kthxbye

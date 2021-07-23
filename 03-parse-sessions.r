@@ -8,7 +8,7 @@ fs::dir_create("data")
 d <- tibble::tibble()
 
 f <- fs::dir_ls("html/sessions")
-cat("Parsing", length(f), "session pages...\n")
+cat("Parsing", length(f), "session pages... ")
 
 for (i in f) {
 
@@ -74,7 +74,12 @@ stopifnot(str_detect(d$session_id, "\\d{4}"))
 # sanity check: no missing abstract ids
 stopifnot(str_detect(d$abstract_id, "\\d{5,6}"))
 
-# export
-readr::write_tsv(d, "data/sessions.tsv")
+# export ------------------------------------------------------------------
+
+f <- "data/sessions.tsv"
+
+readr::write_tsv(d, f)
+
+cat(nrow(d), "rows written to", f, "\n")
 
 # kthxbye

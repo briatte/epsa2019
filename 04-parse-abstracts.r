@@ -6,7 +6,7 @@ fs::dir_create("data")
 # parse abstracts ---------------------------------------------------------
 
 f <- fs::dir_ls("html/abstracts")
-cat("Parsing", length(f), "abstract pages...\n")
+cat("Parsing", length(f), "abstract pages... ")
 
 d <- map(f, read_html) %>%
   map_dfr(
@@ -47,7 +47,12 @@ stopifnot(!duplicated(d))
 # sanity check: no missing abstract ids
 stopifnot(str_detect(d$abstract_id, "\\d{5,6}"))
 
-# export
-readr::write_tsv(d, "data/abstracts.tsv")
+# export ------------------------------------------------------------------
+
+f <- "data/abstracts.tsv"
+
+readr::write_tsv(d, f)
+
+cat(nrow(d), "rows written to", f, "\n")
 
 # kthxbye
