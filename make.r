@@ -25,12 +25,12 @@ source("08-create-pids.r")
 
 # conclude ----------------------------------------------------------------
 
-d <- read_tsv("data/program.tsv", col_types = "ccccccccccccc")
+d <- readr::read_tsv("data/program.tsv", col_types = "ccccccccccccc")
 
 cat(
   "\n-", n_distinct(d$session_id), "panels",
   "\n-", n_distinct(d$abstract_id), "abstracts",
-  "\n-", n_distinct(d$full_name), "participants (ids)",
+  "\n-", n_distinct(d$pid), "participants (ids)",
   "\n-", n_distinct(d$full_name), "participants (full names)",
   # TODO: more data cleaning on affiliations
   "\n-", n_distinct(d$affiliation), "affiliations\n"

@@ -57,7 +57,7 @@ cat(
   n_distinct(d$full_name), "unique names\n"
 )
 
-# overwites existing version
+# overwrites existing version
 readr::write_tsv(d, "data/program.tsv")
 
 # kthxbye
