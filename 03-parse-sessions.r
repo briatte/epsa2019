@@ -14,6 +14,14 @@ for (i in f) {
 
   h <- read_html(i)
 
+  # never more than 1 chair (required to use `html_node` safely below)
+  h_chairs <- html_nodes(h, xpath = "//h3[text()='Chair']/following::div[1]/div[1]")
+  stopifnot(length(h_chairs) %in% 0:1)
+
+  # never more than 1 discussant (required to use `html_node` safely below)
+  h_discus <- html_nodes(h, xpath = "//h3[text()='Discussant']/following::div[1]/div[1]")
+  stopifnot(length(h_discus) %in% 0:1)
+
   # `for` loop and `try` required to skip plenary sessions with no papers
   try(
     d <- tibble::tibble(
