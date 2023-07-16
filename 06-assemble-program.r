@@ -1,10 +1,7 @@
 library(tidyverse)
 
-d <- read_tsv("data/sessions.tsv", col_types = "ccccccccc") %>%
-  full_join(
-    read_tsv("data/authors.tsv", col_types = "ccc"),
-    by = "abstract_id"
-  )
+d <- read_tsv("data/sessions.tsv", col_types = cols(.default = "c")) %>%
+  full_join(read_tsv("data/authors.tsv", col_types = "ccc"), by = "abstract_id")
 
 # sanity checks: identifiers are never missing
 stopifnot(!is.na(d$session_id))

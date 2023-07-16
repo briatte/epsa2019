@@ -1,7 +1,7 @@
 library(tidyverse)
 
 # load master data
-d <- read_tsv("data/program.tsv", col_types = "cccccccccccc")
+d <- read_tsv("data/program.tsv", col_types = cols(.default = "c"))
 
 # sanity check: no missing participant name
 stopifnot(!is.na(d$full_name))
