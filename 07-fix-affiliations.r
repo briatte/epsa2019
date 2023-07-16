@@ -1,12 +1,13 @@
 library(tidyverse)
 
 # load master data
-d <- read_tsv("data/program.tsv", col_types = "cccccccccccc")
+d <- read_tsv("data/program.tsv", col_types = cols(.default = "c"))
 
 # find names with multiple affiliations -----------------------------------
 
 # [NOTE] affiliation is sometimes missing
-filter(d, is.na(affiliation) | affiliation %in% "")
+filter(d, is.na(affiliation) | affiliation %in% "") %>%
+  select(session_id, full_name, affiliation, role)
 
 # # [NOTE] chairs and discussants are sometimes missing
 # group_by(d, session_id) %>%
@@ -67,6 +68,15 @@ d <- mutate(d, affiliation = str_replace_all(affiliation, "\\s,", ","))
 # str_subset(d$affiliation, "\\w-\\s")
 # str_subset(d$affiliation, "^[[:punct:]]|[[:punct:]]$")
 # str_subset(d$affiliation, "[[:punct:]]{2,}")
+
+# manual fixes (typos in names of chairs/discussants)
+filter(d, is.na(affiliation) | affiliation %in% "") %>%
+  select(session_id, full_name, affiliation, role)
+
+d$full_name[ d$full_name == "Zeynep Somer-Tocu" ] <- "Zeynep Somer-Topcu"
+d$affiliation[ d$full_name == "Zeynep Somer-Topcu" ] <- "University of Texas at Austin, USA"
+d$full_name[ d$full_name == "Nick Vivian" ] <- "Nick Vivyan"
+d$affiliation[ d$full_name == "Nick Vivyan" ] <- "Durham University, United Kingdom"
 
 # export corrected program ------------------------------------------------
 
