@@ -61,9 +61,6 @@ stopifnot(!is.na(d$session_id))
 
 # export ------------------------------------------------------------------
 
-
-
-# export
 readr::write_tsv(d, "data/program.tsv")
 
 # kthxbye
