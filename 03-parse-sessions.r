@@ -25,6 +25,8 @@ for (i in f) {
         html_text(),
       session_track = html_nodes(h, xpath = "//span[text()='Track']/..") %>%
         html_text(),
+      session_type = html_nodes(h, xpath = "//span[text()='Presentation type']") %>%
+        list(),
       session_title = html_nodes(h, "h1")[2] %>%
         html_text(),
       chair = html_node(h, xpath = "//h3[text()='Chair']/following::div[1]/div[1]") %>%
@@ -62,6 +64,13 @@ d <- select(d, matches("session|chair|discussant"), abstract_id) %>%
   mutate(
     session_id = str_extract(session_id, "\\d{4}"),
     session_track = str_remove(session_track, "^Track"),
+    # sometimes missing...
+    session_type = map_chr(d$session_type,
+                           function(x) {
+                             x <- html_text(html_node(x, xpath = "./.."))
+                             if (!length(x)) NA else x
+                           }) %>%
+      str_remove("^Presentation type"),
     abstract_id = str_extract(abstract_id, "\\d{5,6}")
   )
 
