@@ -44,10 +44,9 @@ stopifnot(!length(f[ !f %in% d$abstract_id ]))
 # drop unused columns
 d <- select(d, -abstract_authors) %>%
   # minimal data cleaning
-  mutate(
-    abstract_id = str_extract(abstract_id, "\\d{5,6}"),
-    abstract_text = str_squish(abstract_text)
-  )
+  mutate(abstract_id = str_extract(abstract_id, "\\d{5,6}")) %>%
+  mutate_if(is.character, str_squish) %>%
+  mutate_if(is.character, str_replace_all, "\\\"+", "'")
 
 # sanity check: no duplicates
 stopifnot(!duplicated(d$abstract_id))
