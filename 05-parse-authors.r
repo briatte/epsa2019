@@ -71,6 +71,15 @@ stopifnot(!duplicated(d))
 # sanity check: no missing abstract ids
 stopifnot(str_detect(d$abstract_id, "\\d{5,6}"))
 
+# identify abstract presenters --------------------------------------------
+
+d <- readr::read_tsv("data/abstracts.tsv", col_types = cols(.default = "c")) %>%
+  select(abstract_id, abstract_presenters) %>%
+  right_join(d, by = "abstract_id") %>%
+  mutate(presenter = str_detect(abstract_presenters, author),
+         presenter = if_else(presenter, "y", "n")) %>%
+  select(-abstract_presenters)
+
 # export ------------------------------------------------------------------
 
 f <- "data/authors.tsv"

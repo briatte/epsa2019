@@ -8,17 +8,17 @@ stopifnot(!is.na(d$full_name))
 
 # note on abstract presenters ---------------------------------------------
 
-# abstract presenters almost always exist in the list of abstract authors
-filter(d, !is.na(abstract_id)) %>%
-  group_by(abstract_id) %>%
-  summarise(
-    full_name = list(full_name[ role %in% "p" ]),
-    abstract_presenters = str_split(abstract_presenters, ",\\s")
-  ) %>%
-  rowwise() %>%
-  mutate(found = all(abstract_presenters %in% full_name, na.rm = TRUE)) %>%
-  filter(!found) %>%
-  unnest(c(full_name, abstract_presenters))
+# # abstract presenters almost always exist in the list of abstract authors
+# filter(d, !is.na(abstract_id)) %>%
+#   group_by(abstract_id) %>%
+#   summarise(
+#     full_name = list(full_name[ role %in% "p" ]),
+#     abstract_presenters = str_split(abstract_presenters, ",\\s")
+#   ) %>%
+#   rowwise() %>%
+#   mutate(found = all(abstract_presenters %in% full_name, na.rm = TRUE)) %>%
+#   filter(!found) %>%
+#   unnest(c(full_name, abstract_presenters))
 
 # n = 1 special case in a non-paper panel
 # ... so apart in that special case, pids can be used on presenters too

@@ -31,7 +31,7 @@ p <- bind_rows(
     add_column(role = "d")
   ,
   # authors
-  select(d, session_id, full_name = author, affiliation, abstract_id) %>%
+  select(d, session_id, full_name = author, affiliation, presenter, abstract_id) %>%
     # next lines not required: authors do not repeat and are never missing
     # distinct() %>%
     # filter(is.na(full_name))
@@ -52,7 +52,7 @@ a <- read_tsv("data/abstracts.tsv", col_types = cols(.default = "c"))
 # `full_join` because `d` and `p` have exactly the same list of `session_id`
 d <- full_join(d, p, by = "session_id") %>%
   # `left_join` because `d` has rows where `abstract_id` is `NA` (chairs, disc.)
-  left_join(a, by = "abstract_id")
+  left_join(select(a, -abstract_presenters), by = "abstract_id")
 
 # sanity check: everything belongs in a session
 stopifnot(!is.na(d$session_id))
