@@ -34,7 +34,8 @@ readr::write_tsv(p, "data/affiliation-problems.tsv")
 
 # fix multiple affiliations -----------------------------------------------
 
-f <- readr::read_tsv("data/affiliation-fixes.tsv", col_types = "cc")
+f <- readr::read_tsv("data/affiliation-fixes.tsv",
+                     col_types = cols(.default = "c"))
 
 # sanity check: no duplicates in fixes
 stopifnot(!duplicated(f$full_name))

@@ -1,7 +1,8 @@
 library(tidyverse)
 
 d <- read_tsv("data/sessions.tsv", col_types = cols(.default = "c")) %>%
-  full_join(read_tsv("data/authors.tsv", col_types = "ccc"), by = "abstract_id")
+  full_join(read_tsv("data/authors.tsv", col_types = cols(.default = "c")),
+            by = "abstract_id")
 
 # sanity checks: identifiers are never missing
 stopifnot(!is.na(d$session_id))
@@ -46,7 +47,7 @@ d <- select(d, starts_with("session")) %>%
 # assemble full programme -------------------------------------------------
 
 # add abstracts
-a <- read_tsv("data/abstracts.tsv", col_types = "ccccc")
+a <- read_tsv("data/abstracts.tsv", col_types = cols(.default = "c"))
 
 # `full_join` because `d` and `p` have exactly the same list of `session_id`
 d <- full_join(d, p, by = "session_id") %>%
